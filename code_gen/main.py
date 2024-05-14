@@ -18,7 +18,7 @@ data_collator = DataCollatorForSeq2Seq(
 )
 dataset = Dataset(
     tokenizer=tokenizer,
-    file_path="/Users/ladka6/Desktop/final_project/code_gen/data/preprocessed (6).csv",
+    file_path="/home/idlab/final_project/code_gen/data/data.csv",
 )
 
 tokenized_dataset = dataset.load_dataset_from_csv()
@@ -60,8 +60,8 @@ training_args = Seq2SeqTrainingArguments(
 trainer = Seq2SeqTrainer(
     model=model,
     args=training_args,
-    train_dataset=tokenized_dataset["train"].select(range(3)),
-    eval_dataset=tokenized_dataset["test"].select(range(3)),
+    train_dataset=tokenized_dataset["train"],#.select(range(3)),
+    eval_dataset=tokenized_dataset["test"],#.select(range(3)),
     tokenizer=tokenizer,
     data_collator=data_collator,
     compute_metrics=compute_metrics,
