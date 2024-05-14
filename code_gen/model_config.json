@@ -1,0 +1,10 @@
+{
+    "tokenizer": "Salesforce/codet5-small",
+    "data_collator": "Salesforce/codet5-small",
+    "bert": {
+        "num_hidden_layers": 12,
+        "num_attention_heads": 12
+    },
+    "lr": 5e-5,
+    "batch_size": 4
+}
