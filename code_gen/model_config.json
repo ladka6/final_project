@@ -1,10 +1,25 @@
 {
     "tokenizer": "Salesforce/codet5-small",
     "data_collator": "Salesforce/codet5-small",
-    "bert": {
-        "num_hidden_layers": 12,
-        "num_attention_heads": 12
-    },
     "lr": 5e-5,
-    "batch_size": 4
+    "batch_size": 4,
+    "dataset_path": "./code_gen/data/data.csv",
+    "encoder_model": "Salesforce/codet5-base",
+    "query_encoder_model": "FacebookAI/roberta-base",
+    "model": [
+        {
+            "config": {
+                "num_layers": 12,
+                "num_attention_heads": 12
+            },
+            "num_train_epochs": 1
+        },
+        {
+            "config": {
+                "num_layers": 24,
+                "num_attention_heads": 16
+            },
+            "num_train_epochs": 1
+        }
+    ]
 }

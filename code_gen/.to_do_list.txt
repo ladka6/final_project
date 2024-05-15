@@ -1,5 +1,5 @@
 predict without generate ----- done
 lora, pref ----- doing
 test class ----- doing
-train multiple models ----- doing
-taining args to json ----- doing
+train multiple models ----- done
+taining args to json ----- done
