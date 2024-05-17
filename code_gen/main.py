@@ -13,8 +13,6 @@ from transformers import (
 from PrepareModel import PreParedModel
 from Dataset import Dataset
 from Metrics import Metrics
-from CallBacks import PrintPredictionsCallback
-
 
 with open("./code_gen/model_config.json", "r") as f:
     config_data = json.load(f)
@@ -104,3 +102,26 @@ for i, model_config in enumerate(config.model):
     )
 
     trainer.train()
+    trainer.save_pretrained(f"./saved_models/model{layers}")
+    tokenizer.save_pretrained(f"./saved_models/model{layers}")
+
+    print("\nGenerating code for testing the model out\n")
+    for i in range(3):
+        text = """
+        public class Test {
+            public static void main(String[] args){
+                System.out.println("Hello World");
+            }
+        }
+        """
+
+        inputs = tokenizer(
+            text, return_tensors="pt", padding=True, truncation=True, max_length=512
+        )
+
+        input_ids = inputs.input_ids
+        input_ids = input_ids.to(model.device)
+
+        outputs = model.generate(inputs=input_ids, max_length=100)
+        out = tokenizer.decode(outputs[0], skip_special_tokens=True)
+        print(out)
