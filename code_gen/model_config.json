@@ -12,14 +12,7 @@
                 "num_layers": 12,
                 "num_attention_heads": 12
             },
-            "num_train_epochs": 1
-        },
-        {
-            "config": {
-                "num_layers": 24,
-                "num_attention_heads": 16
-            },
-            "num_train_epochs": 1
+            "num_train_epochs": 200
         }
     ]
 }

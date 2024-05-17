@@ -46,7 +46,7 @@ tokenized_dataset = dataset.load_dataset_from_csv()
 compute_metrics = Metrics(tokenizer=tokenizer)
 
 
-for model_config in config.model:
+for i, model_config in enumerate(config.model):
 
     epochs = model_config["num_train_epochs"]
     layers = model_config["config"]["num_layers"]
@@ -72,7 +72,7 @@ for model_config in config.model:
     model = model.prepare()
 
     training_args = Seq2SeqTrainingArguments(
-        output_dir="./test",
+        output_dir=f"./model_{i}",
         evaluation_strategy="steps",
         learning_rate=lr,
         per_device_train_batch_size=batch_size,
