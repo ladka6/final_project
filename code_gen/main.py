@@ -72,16 +72,23 @@ for i, model_config in enumerate(config.model):
     model = model.prepare()
 
     training_args = Seq2SeqTrainingArguments(
-        output_dir=f"./model_{i}",
+        output_dir=f"./model{layers}",
         evaluation_strategy="steps",
         learning_rate=lr,
         per_device_train_batch_size=batch_size,
-        per_device_eval_batch_size=batch_size,
+        per_device_eval_batch_size=int(batch_size / 2),
         weight_decay=0.01,
         save_total_limit=5,
-        logging_steps=100,
+        eval_steps=1000,
+        logging_steps=1000,
+        save_steps=1000,
         num_train_epochs=epochs,
         load_best_model_at_end=True,
+        fp16=True,
+        gradient_accumulation_steps=4,
+        gradient_checkpointing=True,
+        eval_accumulation_steps=2,
+        # use_cpu=True  # Use CPU for evaluation
     )
     trainer = Seq2SeqTrainer(
         model=model,
