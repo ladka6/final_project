@@ -102,7 +102,7 @@ for i, model_config in enumerate(config.model):
     )
 
     trainer.train()
-    trainer.save_pretrained(f"./saved_models/model{layers}")
+    model.save_pretrained(f"./saved_models/model{layers}")
     tokenizer.save_pretrained(f"./saved_models/model{layers}")
 
     print("\nGenerating code for testing the model out\n")
