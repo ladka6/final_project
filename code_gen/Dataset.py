@@ -9,6 +9,7 @@ class Dataset:
 
     def load_dataset_from_csv(self, max_length=512):
         dataset = load_dataset("csv", data_files=self.file_path, split="train")
+        # dataset = load_dataset("ladka6/code_dataset",split="train")
         dataset = dataset.filter(
             lambda example: all(value is not None for value in example.values())
         )

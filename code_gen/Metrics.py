@@ -33,4 +33,4 @@ class Metrics:
             sample_weight=sample_weight,
         )
 
-        return {"accuracy", accuracy["accuracy"]}
+        return {"accuracy": accuracy["accuracy"]}
