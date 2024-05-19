@@ -7,7 +7,8 @@ from transformers import AutoTokenizer
 tokenizer = AutoTokenizer.from_pretrained("Salesforce/codet5-small")
 config = ProjectModelConfig.from_pretrained("./saved_models/model4")
 
-model = ProjectModel.from_pretrained("./saved_models/model4", config=config)
+# model = ProjectModel.from_pretrained("./saved_models/model4", config=config)
+model = ProjectModel.from_pretrained_safetensors("./saved_models/model4", config=config)
 model.config.eos_token_id = tokenizer.sep_token_id
 model.config.pad_token_id = tokenizer.pad_token_id
 # model.config.vocab_size = model.config.encoder.vocab_size
@@ -28,7 +29,9 @@ inputs = tokenizer(
 
 input_ids = inputs.input_ids
 input_ids = input_ids.to(model.device)
-outputs = model.generate(input_ids)
-print(outputs)
-out = tokenizer.decode(outputs[0], skip_special_tokens=True)
+outputs = model.generate(input_ids, max_length=100)
+out = tokenizer.decode(
+    outputs[0],
+    skip_special_tokens=True,
+)
 print(out)
