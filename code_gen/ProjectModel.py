@@ -1,6 +1,12 @@
 from transformers import (
-    EncoderDecoderModel,
     PreTrainedModel,
+    T5Config,
+    RobertaConfig,
+    BertConfig,
+    T5Model,
+    AutoModelForSeq2SeqLM,
+    RobertaModel,
+    BertLMHeadModel,
 )
 from transformers.modeling_outputs import Seq2SeqLMOutput
 from typing import Optional, Tuple, Union
@@ -8,37 +14,34 @@ import torch.nn as nn
 import inspect
 import torch
 from BahdanauAttention import BahdanauAttention
+from ProjectModelConfig import ProjectModelConfig
 
 
-class CodeGen(EncoderDecoderModel):
-    def __init__(
-        self,
-        config,
-        encoder: Optional[PreTrainedModel] = None,
-        decoder: Optional[PreTrainedModel] = None,
-        query_encoder: Optional[PreTrainedModel] = None,
-        pad_token_id: Optional[int] = None,
-        decoder_start_token_id: Optional[int] = None,
-    ):
+class ProjectModel(PreTrainedModel):
+    config_class = ProjectModelConfig
+
+    def __init__(self, config: ProjectModelConfig):
         super().__init__(config)
-        if encoder is None:
-            from transformers import AutoModel
+        if isinstance(config.encoder, dict):
+            encoder_config = T5Config.from_dict(config.encoder)
+        else:
+            encoder_config = config.encoder
 
-            encoder = AutoModel.from_config(config.encoder)
+        if isinstance(config.query_encoder_config, dict):
+            query_encoder_config = RobertaConfig.from_dict(config.query_encoder_config)
+        else:
+            query_encoder_config = config.query_encoder_config
 
-        if decoder is None:
-            from transformers import AutoModelForCausalLM
+        if isinstance(config.decoder, dict):
+            decoder_config = BertConfig.from_dict(config.decoder)
+        else:
+            decoder_config = config.decoder
 
-            decoder = AutoModelForCausalLM.from_config(config.decoder)
-
-        self.query_encoder = query_encoder
-        self.encoder = encoder
-        self.decoder = decoder
-
-        self.encoder.config = self.config.encoder
-        self.decoder.config = self.config.decoder
-
-        self.b_attention = BahdanauAttention(self.decoder.config.hidden_size)
+        t5: T5Model = AutoModelForSeq2SeqLM.from_config(encoder_config)
+        self.encoder = t5.get_encoder()
+        self.query_encoder = RobertaModel._from_config(query_encoder_config)
+        self.b_attention = BahdanauAttention(decoder_config.hidden_size)
+        self.decoder = BertLMHeadModel._from_config(decoder_config)
 
         if (
             self.encoder.config.hidden_size != self.decoder.config.hidden_size
@@ -53,10 +56,10 @@ class CodeGen(EncoderDecoderModel):
                 f"The encoder {self.encoder} should not have a LM Head. Please use a model without LM Head"
             )
 
-        if self.query_encoder.get_output_embeddings() is not None:
-            raise ValueError(
-                f"The encoder {self.query_encoder} should not have a LM Head. Please use a model without LM Head"
-            )
+        # if self.query_encoder.get_output_embeddings() is not None:
+        #     raise ValueError(
+        #         f"The encoder {self.query_encoder} should not have a LM Head. Please use a model without LM Head"
+        #     )
 
         decoder_signature = set(
             inspect.signature(self.decoder.forward).parameters.keys()
@@ -68,8 +71,8 @@ class CodeGen(EncoderDecoderModel):
                 "following discussion on GitHub: https://github.com/huggingface/transformers/issues/23350"
             )
 
-        self.config.pad_token_id = pad_token_id
-        self.config.decoder_start_token_id = decoder_start_token_id
+        self.config.pad_token_id = config.pad_token_id
+        self.config.decoder_start_token_id = config.decoder_start_token_id
         self.tie_weights()
 
     def tie_weights(self):
@@ -103,6 +106,60 @@ class CodeGen(EncoderDecoderModel):
         shifted_input_ids.masked_fill_(shifted_input_ids == -100, pad_token_id)
 
         return shifted_input_ids
+
+    @classmethod
+    def from_pretrained(cls, pretrained_model_name_or_path, *model_args, **kwargs):
+        return super().from_pretrained(
+            pretrained_model_name_or_path, *model_args, **kwargs
+        )
+
+    def prepare_decoder_input_ids_from_labels(self, labels: torch.Tensor):
+        return self.shift_tokens_right(
+            labels, self.config.pad_token_id, self.config.decoder_start_token_id
+        )
+
+    def get_encoder(self):
+        return self.encoder
+
+    def get_decoder(self):
+        return self.decoder
+
+    def get_input_embeddings(self):
+        return self.encoder.get_input_embeddings()
+
+    def get_output_embeddings(self):
+        return self.decoder.get_output_embeddings()
+
+    def set_output_embeddings(self, new_embeddings):
+        return self.decoder.set_output_embeddings(new_embeddings)
+
+    def prepare_inputs_for_generation(
+        self,
+        input_ids,
+        past_key_values=None,
+        attention_mask=None,
+        use_cache=None,
+        encoder_outputs=None,
+        **kwargs,
+    ):
+        decoder_inputs = self.decoder.prepare_inputs_for_generation(
+            input_ids, past_key_values=past_key_values
+        )
+        decoder_attention_mask = (
+            decoder_inputs["attention_mask"]
+            if "attention_mask" in decoder_inputs
+            else None
+        )
+
+        input_dict = {
+            "attention_mask": attention_mask,
+            "decoder_attention_mask": decoder_attention_mask,
+            "decoder_input_ids": decoder_inputs["input_ids"],
+            "encoder_outputs": encoder_outputs,
+            "past_key_values": decoder_inputs["past_key_values"],
+            "use_cache": use_cache,
+        }
+        return input_dict
 
     def forward(
         self,

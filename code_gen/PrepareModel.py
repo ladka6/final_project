@@ -3,8 +3,13 @@ from transformers import (
     EncoderDecoderConfig,
     T5Model,
 )
-from transformers import BertConfig, BertLMHeadModel, BertModel, RobertaModel
-from CodeGen import CodeGen
+from transformers import (
+    BertConfig,
+    BertLMHeadModel,
+    RobertaModel,
+)
+from ProjectModel import ProjectModel
+from ProjectModelConfig import ProjectModelConfig
 
 
 class PreParedModel:
@@ -17,15 +22,15 @@ class PreParedModel:
         self.decoder = BertLMHeadModel(bert_config)
         self.query_encoder = RobertaModel.from_pretrained(query_encoder)
 
-    def prepare(self) -> CodeGen:
+    def prepare(self) -> ProjectModel:
         self.encoder.resize_token_embeddings(len(self.tokenizer))
-
         self.query_encoder.resize_token_embeddings(len(self.tokenizer))
-
         self.decoder.resize_token_embeddings(len(self.tokenizer))
 
-        config = EncoderDecoderConfig.from_encoder_decoder_configs(
-            self.encoder.config, self.decoder.config
+        config = ProjectModelConfig(
+            encoder=self.encoder.config,
+            decoder=self.decoder.config,
+            query_encoder_config=self.query_encoder.config,
         )
 
         self.query_encoder.config.eos_token_id = self.tokenizer.sep_token_id
@@ -34,11 +39,8 @@ class PreParedModel:
         self.query_encoder.config.sep_token_id = self.tokenizer.sep_token_id
         self.query_encoder.config.decoder_start_token_id = self.tokenizer.cls_token_id
 
-        model = CodeGen(
-            config,
-            encoder=self.encoder,
-            decoder=self.decoder,
-            query_encoder=self.query_encoder,
+        model = ProjectModel(
+            config=config,
         )
 
         model.config.eos_token_id = self.tokenizer.sep_token_id

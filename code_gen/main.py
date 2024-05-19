@@ -100,7 +100,7 @@ for i, model_config in enumerate(config.model):
             EarlyStoppingCallback(early_stopping_patience=3),
         ],
     )
-
+    print("\nTraining the model\n")
     trainer.train()
     model.save_pretrained(f"./saved_models/model{layers}")
     tokenizer.save_pretrained(f"./saved_models/model{layers}")
@@ -122,6 +122,6 @@ for i, model_config in enumerate(config.model):
         input_ids = inputs.input_ids
         input_ids = input_ids.to(model.device)
 
-        outputs = model.generate(inputs=input_ids, max_length=100)
+        outputs = model.generate(inputs=input_ids)
         out = tokenizer.decode(outputs[0], skip_special_tokens=True)
         print(out)
