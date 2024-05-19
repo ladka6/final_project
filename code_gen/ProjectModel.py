@@ -15,6 +15,8 @@ import inspect
 import torch
 from BahdanauAttention import BahdanauAttention
 from ProjectModelConfig import ProjectModelConfig
+from safetensors.torch import load_file
+import os
 
 
 class ProjectModel(PreTrainedModel):
@@ -83,6 +85,40 @@ class ProjectModel(PreTrainedModel):
                 self.decoder._modules[decoder_base_model_prefix],
                 self.decoder.base_model_prefix,
             )
+
+    @classmethod
+    def from_pretrained_with_state(cls, pretrained_model_name_or_path, config):
+        # Instantiate the model with the given configuration
+        model = cls(config)
+
+        # Load the state dictionary
+        state_dict = torch.load(
+            os.path.join(pretrained_model_name_or_path, "pytorch_model.bin")
+        )
+
+        # Load the state dictionary into the model
+        model.load_state_dict(state_dict)
+
+        return model
+
+    @classmethod
+    def from_pretrained_safetensors(cls, pretrained_model_name_or_path, config):
+        # Instantiate the model with the given configuration
+        model = cls(config)
+
+        # Load the weights using safetensors
+        state_dict = load_file(f"{pretrained_model_name_or_path}/model.safetensors")
+
+        # Load the weights into the model
+        model.load_state_dict(state_dict, strict=False)
+
+        return model
+
+    def save_pretrained_with_state(self, save_directory):
+        # Save the model state dictionary including all keys
+        state_dict = self.state_dict()
+        torch.save(state_dict, os.path.join(save_directory, "pytorch_model.bin"))
+        self.config.save_pretrained(save_directory)
 
     def shift_tokens_right(
         self, input_ids: torch.Tensor, pad_token_id: int, decoder_start_token_id: int
