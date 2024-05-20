@@ -3,34 +3,44 @@ from datasets import load_dataset
 
 
 class Dataset:
-    def __init__(self, tokenizer, file_path) -> None:
+    def __init__(self, tokenizer, random_state=42) -> None:
         self.tokenizer = tokenizer
-        self.file_path = file_path
+        self.random_state = random_state
 
     def load_dataset_from_csv(self, max_length=512):
-        dataset = load_dataset("csv", data_files=self.file_path, split="train")
-        # dataset = load_dataset("ladka6/code_dataset",split="train")
+        dataset = load_dataset("ladka6/code_dataset", split="train")
         dataset = dataset.filter(
             lambda example: all(value is not None for value in example.values())
         )
-        dataset = dataset.train_test_split(test_size=0.2)
+
+        # Split the dataset into training, validation, and test sets
+        train_test_split = dataset.train_test_split(
+            test_size=0.2, seed=self.random_state
+        )
+        train_val_split = train_test_split["train"].train_test_split(
+            test_size=0.25, seed=self.random_state
+        )
+
+        train_dataset = train_val_split["train"]
+        val_dataset = train_val_split["test"]
+        test_dataset = train_test_split["test"]
 
         def tokenize_function(examples):
-            inputs = self.tokenizer(  # x
+            inputs = self.tokenizer(
                 examples["lang1"],
                 padding="max_length",
                 max_length=max_length,
                 truncation=True,
                 return_tensors="pt",
             )
-            targets = self.tokenizer(  # 512
+            targets = self.tokenizer(
                 examples["lang2"],
                 padding="max_length",
                 max_length=max_length,
                 truncation=True,
                 return_tensors="pt",
             )
-            query = self.tokenizer(  # 512
+            query = self.tokenizer(
                 examples["query"],
                 padding="max_length",
                 max_length=max_length,
@@ -65,10 +75,22 @@ class Dataset:
                 "labels": targets.input_ids,
             }
 
-        tokenized_datasets = dataset.map(
+        tokenized_train_dataset = train_dataset.map(
             tokenize_function,
             batched=True,
-            remove_columns=dataset["train"].column_names,
+            remove_columns=train_dataset.column_names,
         )
 
-        return tokenized_datasets
+        tokenized_val_dataset = val_dataset.map(
+            tokenize_function,
+            batched=True,
+            remove_columns=val_dataset.column_names,
+        )
+
+        tokenized_test_dataset = test_dataset.map(
+            tokenize_function,
+            batched=True,
+            remove_columns=test_dataset.column_names,
+        )
+
+        return tokenized_train_dataset, tokenized_val_dataset, tokenized_test_dataset
