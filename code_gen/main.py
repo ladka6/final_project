@@ -72,7 +72,7 @@ for i, model_config in enumerate(config.model):
     model = model.prepare()
 
     training_args = Seq2SeqTrainingArguments(
-        output_dir=f"./model{layers}",
+        output_dir=f"./model_{layers}_logs",
         evaluation_strategy="steps",
         learning_rate=lr,
         per_device_train_batch_size=batch_size,
@@ -104,7 +104,8 @@ for i, model_config in enumerate(config.model):
     )
     print("\nTraining the model\n")
     trainer.train()
-    model.save_pretrained(f"./saved_models/model{layers}")
+    model.save_pretrained_with_state(f"./saved_models/model{layers}")
+    model.save_pretrained_with_state(f"./saved_models/model{layers}_state")
     tokenizer.save_pretrained(f"./saved_models/model{layers}")
 
     print("\nGenerating code for testing the model out\n")
