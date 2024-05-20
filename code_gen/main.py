@@ -39,8 +39,10 @@ query_encoder_model = config.query_encoder_model
 
 tokenizer = AutoTokenizer.from_pretrained(tokenizer_str)
 data_collator = DataCollatorForSeq2Seq(tokenizer=tokenizer, model=data_collator_str)
-dataset = Dataset(tokenizer=tokenizer, file_path=dataset_path)
-tokenized_dataset = dataset.load_dataset_from_csv()
+dataset = Dataset(tokenizer=tokenizer)
+tokenized_train_dataset, tokenized_val_dataset, tokenized_test_dataset = (
+    dataset.load_dataset_from_csv()
+)
 compute_metrics = Metrics(tokenizer=tokenizer)
 
 
@@ -91,8 +93,8 @@ for i, model_config in enumerate(config.model):
     trainer = Seq2SeqTrainer(
         model=model,
         args=training_args,
-        train_dataset=tokenized_dataset["train"],  # .select(range(1)),
-        eval_dataset=tokenized_dataset["test"],  # .select(range(1)),
+        train_dataset=tokenized_train_dataset,  # .select(range(1)),
+        eval_dataset=tokenized_val_dataset,  # .select(range(1)),
         tokenizer=tokenizer,
         data_collator=data_collator,
         compute_metrics=compute_metrics,
@@ -101,27 +103,27 @@ for i, model_config in enumerate(config.model):
         ],
     )
     print("\nTraining the model\n")
-    trainer.train()
-    model.save_pretrained(f"./saved_models/model{layers}")
-    tokenizer.save_pretrained(f"./saved_models/model{layers}")
+    # trainer.train()
+    # model.save_pretrained(f"./saved_models/model{layers}")
+    # tokenizer.save_pretrained(f"./saved_models/model{layers}")
 
-    print("\nGenerating code for testing the model out\n")
-    for i in range(3):
-        text = """
-        public class Test {
-            public static void main(String[] args){
-                System.out.println("Hello World");
-            }
-        }
-        """
+    # print("\nGenerating code for testing the model out\n")
+    # for i in range(3):
+    #     text = """
+    #     public class Test {
+    #         public static void main(String[] args){
+    #             System.out.println("Hello World");
+    #         }
+    #     }
+    #     """
 
-        inputs = tokenizer(
-            text, return_tensors="pt", padding=True, truncation=True, max_length=512
-        )
+    #     inputs = tokenizer(
+    #         text, return_tensors="pt", padding=True, truncation=True, max_length=512
+    #     )
 
-        input_ids = inputs.input_ids
-        input_ids = input_ids.to(model.device)
+    #     input_ids = inputs.input_ids
+    #     input_ids = input_ids.to(model.device)
 
-        outputs = model.generate(inputs=input_ids)
-        out = tokenizer.decode(outputs[0], skip_special_tokens=True)
-        print(out)
+    #     outputs = model.generate(inputs=input_ids)
+    #     out = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    #     print(out)

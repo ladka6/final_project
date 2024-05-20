@@ -9,7 +9,7 @@ from transformers import (
     BertLMHeadModel,
 )
 from transformers.modeling_outputs import Seq2SeqLMOutput
-from typing import Optional, Tuple, Union
+from typing import Optional, Tuple
 import torch.nn as nn
 import inspect
 import torch
@@ -115,7 +115,6 @@ class ProjectModel(PreTrainedModel):
         return model
 
     def save_pretrained_with_state(self, save_directory):
-        # Save the model state dictionary including all keys
         state_dict = self.state_dict()
         torch.save(state_dict, os.path.join(save_directory, "pytorch_model.bin"))
         self.config.save_pretrained(save_directory)
