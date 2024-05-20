@@ -87,10 +87,10 @@ class Dataset:
             remove_columns=val_dataset.column_names,
         )
 
-        tokenized_test_dataset = test_dataset.map(
-            tokenize_function,
-            batched=True,
-            remove_columns=test_dataset.column_names,
-        )
+        # tokenized_test_dataset = test_dataset.map(
+        #     tokenize_function,
+        #     batched=True,
+        #     remove_columns=test_dataset.column_names,
+        # )
 
-        return tokenized_train_dataset, tokenized_val_dataset, tokenized_test_dataset
+        return tokenized_train_dataset, tokenized_val_dataset, test_dataset
