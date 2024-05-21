@@ -84,7 +84,7 @@ for i, model_config in enumerate(config.model):
         per_device_eval_batch_size=int(batch_size / 2),
         weight_decay=0.01,
         save_total_limit=5,
-        eval_steps=1000,
+        eval_steps=250,
         logging_steps=1000,
         save_steps=1000,
         num_train_epochs=epochs,

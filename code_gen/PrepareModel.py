@@ -1,8 +1,4 @@
-from transformers import (
-    AutoModelForSeq2SeqLM,
-    EncoderDecoderConfig,
-    T5Model,
-)
+from transformers import AutoModelForSeq2SeqLM, EncoderDecoderConfig, T5Model, AutoModel
 from transformers import (
     BertConfig,
     BertLMHeadModel,
@@ -17,8 +13,8 @@ class PreParedModel:
         self, tokenizer, t5_model: str, bert_config: BertConfig, query_encoder: str
     ) -> None:
         self.tokenizer = tokenizer
-        self.t5: T5Model = AutoModelForSeq2SeqLM.from_pretrained(t5_model)
-        self.encoder = self.t5.get_encoder()
+        # self.t5: T5Model = AutoModelForSeq2SeqLM.from_pretrained(t5_model)
+        self.encoder = AutoModel.from_pretrained(t5_model)
         self.decoder = BertLMHeadModel(bert_config)
         self.query_encoder = RobertaModel.from_pretrained(query_encoder)
 

@@ -7,6 +7,7 @@ from transformers import (
     AutoModelForSeq2SeqLM,
     RobertaModel,
     BertLMHeadModel,
+    AutoModel,
 )
 from transformers.modeling_outputs import Seq2SeqLMOutput
 from typing import Optional, Tuple
@@ -25,7 +26,7 @@ class ProjectModel(PreTrainedModel):
     def __init__(self, config: ProjectModelConfig):
         super().__init__(config)
         if isinstance(config.encoder, dict):
-            encoder_config = T5Config.from_dict(config.encoder)
+            encoder_config = RobertaConfig.from_dict(config.encoder)
         else:
             encoder_config = config.encoder
 
@@ -39,8 +40,9 @@ class ProjectModel(PreTrainedModel):
         else:
             decoder_config = config.decoder
 
-        t5: T5Model = AutoModelForSeq2SeqLM.from_config(encoder_config)
-        self.encoder = t5.get_encoder()
+        # t5: T5Model = AutoModelForSeq2SeqLM.from_config(encoder_config)
+        # self.encoder = t5.get_encoder()
+        self.encoder = AutoModel.from_config(encoder_config)
         self.query_encoder = RobertaModel._from_config(query_encoder_config)
         self.b_attention = BahdanauAttention(decoder_config.hidden_size)
         self.decoder = BertLMHeadModel._from_config(decoder_config)
