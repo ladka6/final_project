@@ -116,6 +116,8 @@ class ProjectModel(PreTrainedModel):
 
     def save_pretrained_with_state(self, save_directory):
         state_dict = self.state_dict()
+        if not os.path.exists(save_directory):
+            os.makedirs(save_directory)
         torch.save(state_dict, os.path.join(save_directory, "pytorch_model.bin"))
         self.config.save_pretrained(save_directory)
 
