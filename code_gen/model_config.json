@@ -1,10 +1,10 @@
 {
-    "tokenizer": "Salesforce/codet5-small",
-    "data_collator": "Salesforce/codet5-small",
+    "tokenizer": "microsoft/codebert-base",
+    "data_collator": "microsoft/codebert-base",
     "lr": 5e-5,
     "batch_size": 16,
     "dataset_path": "./code_gen/data/data.csv",
-    "encoder_model": "Salesforce/codet5-base",
+    "encoder_model": "microsoft/codebert-base",
     "query_encoder_model": "FacebookAI/roberta-base",
     "model": [
         {
