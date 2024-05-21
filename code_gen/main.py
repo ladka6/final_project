@@ -1,5 +1,4 @@
 import json
-import os
 from interface.config import Config
 
 from transformers import (
@@ -13,6 +12,12 @@ from transformers import (
 from PrepareModel import PreParedModel
 from Dataset import Dataset
 from Metrics import Metrics
+import os
+
+if os.path.exists("./saved_models") == False:
+    os.mkdir("./saved_models")
+if os.path.exists("./evaluation") == False:
+    os.mkdir("./evaluation")
 
 with open("./code_gen/model_config.json", "r") as f:
     config_data = json.load(f)
@@ -104,7 +109,7 @@ for i, model_config in enumerate(config.model):
     )
     print("\nTraining the model\n")
     trainer.train()
-    model.save_pretrained_with_state(f"./saved_models/model{layers}")
+    model.save_pretrained(f"./saved_models/model{layers}")
     model.save_pretrained_with_state(f"./saved_models/model{layers}_state")
     tokenizer.save_pretrained(f"./saved_models/model{layers}")
 
