@@ -18,7 +18,7 @@ model.generation_config.decoder_start_token_id = tokenizer.cls_token_id
 text = """
         public class Test {
             public static void main(String[] args){
-                System.out.println("efsa lara eylül World");
+                System.out.println("Hello World");
             }
         }
         """
