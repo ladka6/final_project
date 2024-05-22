@@ -231,17 +231,17 @@ class ProjectModel(PreTrainedModel):
 
             encoder_hidden_states = encoder_outputs[0]
 
-            # query_outputs = self.query_encoder(
-            #     input_ids=query_ids,
-            #     attention_mask=query_attention_mask,  # Fix attention mask
-            # )
+            query_outputs = self.query_encoder(
+                input_ids=query_ids,
+                attention_mask=query_attention_mask,  # Fix attention mask
+            )
 
-            # query_hidden_states = query_outputs[0]
+            query_hidden_states = query_outputs[0]
 
-            # cross_attn_out, _ = self.b_attention(
-            #     query=encoder_hidden_states,
-            #     keys=query_hidden_states,
-            # )
+            cross_attn_out, _ = self.b_attention(
+                query=encoder_hidden_states,
+                keys=query_hidden_states,
+            )
 
             if (labels is not None) and (
                 decoder_input_ids is None and decoder_inputs_embeds is None
@@ -257,7 +257,7 @@ class ProjectModel(PreTrainedModel):
             decoder_outputs = self.decoder(
                 input_ids=decoder_input_ids,
                 attention_mask=decoder_attention_mask,
-                encoder_hidden_states=encoder_hidden_states,
+                encoder_hidden_states=cross_attn_out,
                 # encoder_attention_mask=attention_mask,
             )
 
