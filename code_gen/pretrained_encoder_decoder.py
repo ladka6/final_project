@@ -36,7 +36,7 @@ tokenizer = AutoTokenizer.from_pretrained("microsoft/codebert-base")
 
 dataset = Dataset(tokenizer=tokenizer)
 tokenized_train_dataset, tokenized_val_dataset, tokenized_test_dataset = (
-    dataset.load_dataset_from_csv()
+    dataset.load_dataset(for_project_model=False)
 )
 compute_metrics = Metrics(tokenizer=tokenizer)
 data_collator = DataCollatorForSeq2Seq(tokenizer=tokenizer, model=data_collator_str)

@@ -1,5 +1,5 @@
-from ProjectModelConfig import ProjectModelConfig
-from ProjectModel import ProjectModel
+from code_gen.models.ProjectModelConfig import ProjectModelConfig
+from code_gen.models.ProjectModel import ProjectModel
 
 from transformers import AutoTokenizer
 

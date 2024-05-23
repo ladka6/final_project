@@ -9,7 +9,7 @@ from transformers import (
     Seq2SeqTrainer,
     EarlyStoppingCallback,
 )
-from PrepareModel import PreParedModel
+from code_gen.models.PrepareModel import PreParedModel
 from Dataset import Dataset
 from Metrics import Metrics
 import os
@@ -46,7 +46,7 @@ tokenizer = AutoTokenizer.from_pretrained(tokenizer_str)
 data_collator = DataCollatorForSeq2Seq(tokenizer=tokenizer, model=data_collator_str)
 dataset = Dataset(tokenizer=tokenizer)
 tokenized_train_dataset, tokenized_val_dataset, tokenized_test_dataset = (
-    dataset.load_dataset_from_csv()
+    dataset.load_dataset(for_project_model=True)
 )
 compute_metrics = Metrics(tokenizer=tokenizer)
 

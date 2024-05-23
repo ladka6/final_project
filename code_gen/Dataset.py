@@ -7,7 +7,7 @@ class Dataset:
         self.tokenizer = tokenizer
         self.random_state = random_state
 
-    def load_dataset_from_csv(self, max_length=512):
+    def load_dataset_for_project_model(self, max_length=512):
         dataset = load_dataset("ladka6/code_dataset", split="train")
         dataset = dataset.filter(
             lambda example: all(value is not None for value in example.values())
@@ -94,3 +94,64 @@ class Dataset:
         # )
 
         return tokenized_train_dataset, tokenized_val_dataset, test_dataset
+
+    def load_dataset_for_else(self, max_length=512):
+        dataset = load_dataset("ladka6/code_dataset", split="train")
+        dataset = dataset.filter(
+            lambda example: all(value is not None for value in example.values())
+        )
+
+        train_test_split = dataset.train_test_split(
+            test_size=0.2, seed=self.random_state
+        )
+        train_val_split = train_test_split["train"].train_test_split(
+            test_size=0.25, seed=self.random_state
+        )
+
+        train_dataset = train_val_split["train"]
+        val_dataset = train_val_split["test"]
+        test_dataset = train_test_split["test"]
+
+        def tokenize_function(examples):
+            inputs = self.tokenizer(
+                examples["lang1"],
+                padding="max_length",
+                max_length=max_length,
+                truncation=True,
+                return_tensors="pt",
+            )
+            targets = self.tokenizer(
+                examples["lang2"],
+                padding="max_length",
+                max_length=max_length,
+                truncation=True,
+                return_tensors="pt",
+            )
+
+            attention_mask = inputs.attention_mask
+            input_ids = inputs.input_ids
+
+            return {
+                "input_ids": input_ids,
+                "attention_mask": attention_mask,
+                "labels": targets.input_ids,
+            }
+
+        tokenized_train_dataset = train_dataset.map(
+            tokenize_function,
+            batched=True,
+            remove_columns=train_dataset.column_names,
+        )
+
+        tokenized_val_dataset = val_dataset.map(
+            tokenize_function,
+            batched=True,
+            remove_columns=val_dataset.column_names,
+        )
+
+        return tokenized_train_dataset, tokenized_val_dataset, test_dataset
+
+    def load_dataset(self, max_length=512, for_project_model=True):
+        if for_project_model:
+            return self.load_dataset_for_project_model(max_length)
+        return self.load_dataset_for_else(max_length)
