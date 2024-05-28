@@ -1,6 +1,6 @@
 import os
-from code_gen.models.ProjectModel import ProjectModel
-from code_gen.models.ProjectModelConfig import ProjectModelConfig
+from ProjectModel import ProjectModel
+from ProjectModelConfig import ProjectModelConfig
 from transformers import AutoTokenizer
 from Dataset import Dataset
 import code_bert_score

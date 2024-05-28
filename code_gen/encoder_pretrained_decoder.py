@@ -11,7 +11,7 @@ from transformers import (
     EarlyStoppingCallback,
     GPT2Config,
 )
-from interface.config import Config
+from config import Config
 from Dataset import Dataset
 from Metrics import Metrics
 

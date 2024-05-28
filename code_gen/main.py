@@ -1,5 +1,5 @@
 import json
-from interface.config import Config
+from config import Config
 
 from transformers import (
     DataCollatorForSeq2Seq,
@@ -9,7 +9,7 @@ from transformers import (
     Seq2SeqTrainer,
     EarlyStoppingCallback,
 )
-from code_gen.models.PrepareModel import PreParedModel
+from PrepareModel import PreParedModel
 from Dataset import Dataset
 from Metrics import Metrics
 import os

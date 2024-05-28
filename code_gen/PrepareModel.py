@@ -4,8 +4,8 @@ from transformers import (
     BertLMHeadModel,
     RobertaModel,
 )
-from code_gen.models.ProjectModel import ProjectModel
-from code_gen.models.ProjectModelConfig import ProjectModelConfig
+from ProjectModel import ProjectModel
+from ProjectModelConfig import ProjectModelConfig
 
 
 class PreParedModel:

@@ -13,8 +13,8 @@ from typing import Optional, Tuple
 import torch.nn as nn
 import inspect
 import torch
-from code_gen.models.BahdanauAttention import BahdanauAttention
-from code_gen.models.ProjectModelConfig import ProjectModelConfig
+from BahdanauAttention import BahdanauAttention
+from ProjectModelConfig import ProjectModelConfig
 from safetensors.torch import load_file
 import os
 
